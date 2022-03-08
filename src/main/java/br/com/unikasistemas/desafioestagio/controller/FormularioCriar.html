@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:wicket="http://wicket.apache.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <wicket:panel>
+
+
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-geral-tab" data-toggle="tab" href="#nav-geral" role="tab" aria-controls="nav-geral" aria-selected="true">Geral</a>
+                <a class="nav-item nav-link" id="nav-enderecos-tab" data-toggle="tab" href="#nav-enderecos" role="tab" aria-controls="nav-enderecos" aria-selected="false">Endereços</a>
+
+            </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-geral" role="tabpanel" aria-labelledby="nav-geral-tab">
+                <div style="margin: 10px">
+                    <br/>
+                    <p wicket:id="titulo">[titulo]</p>
+                    <hr />
+
+                    <div style="color:red" wicket:id="feedbackMessage"></div>
+
+                    <form wicket:id="formularioPessoa" name="formularioPessoa">
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Tipo de Pessoa</label>
+                                <select class="form-control" wicket:id="tipoPessoa">
+                                </select>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>CPF/CNPJ</label>
+                                <input class="form-control" wicket:id="cpfCnpj" type="text" placeholder="CPF/CNPJ"/>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>Razão Social/Nome</label>
+                                <input class="form-control" wicket:id="razaoSocial" type="text"
+                                       placeholder="Razão Social/Nome"/>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <br/>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Nome Alternativo</label>
+                                <input class="form-control" wicket:id="nomeAlternativo" type="text"
+                                       placeholder="Nome Alternativo"/>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>E-mail</label>
+                                <input class="form-control" wicket:id="email" type="text"
+                                       placeholder="name@example.com"/>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>RG</label>
+                                <input class="form-control" wicket:id="rg" type="text" placeholder="RG"/>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <br/>
+
+                        <div class="row">
+                            <div class="col">
+                                <label>Telefone</label>
+                                <input class="form-control" wicket:id="telefone" type="text" placeholder="Telefone"/>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>Inscrição Estadual</label>
+                                <input class="form-control" wicket:id="inscricaoEstadual" type="text"
+                                       placeholder="Inscrição Estadual"/>
+                            </div>
+                            <br/>
+                            <div class="col">
+                                <label>Data de Nascimento</label>
+                                <input class="form-control" wicket:id="dataNascimento" type="text"
+                                       placeholder="dd/mm/yyyy"/>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <br/>
+
+                        <div class="row">
+                            <br/>
+                            <div class="col">
+                                <div>
+                                    <label>Ativo</label>
+                                </div>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <wicket:container wicket:id="ativo">
+                                        <label class="btn btn-secondary active">
+                                            <input wicket:id="ativoSim" name="options" type="radio" autocomplete="on" checked>Sim</input>
+                                        </label>
+                                        <label class="btn btn-secondary">
+                                            <input wicket:id="ativoNao" name="options" type="radio" autocomplete="off">Não</input>
+                                        </label>
+                                    </wicket:container>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+
+                        <br/>
+                        <hr />
+
+                        <div>
+                            <button type="submit" class="btn btn-primary" name="submit">Salvar</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+<!--            Separação das Navs-->
+
+<!--            Nav de Lista de Endereços-->
+            <div class="tab-pane fade" id="nav-enderecos" role="tabpanel" aria-labelledby="nav-enderecos-tab">
+                <div style="margin: 10px">
+
+                    <br />
+
+                    <div id="blocoEsquerdo">
+                        <wicket:link>
+                            <a wicket:id="botaoInserirEndereco">
+                                <button type="button" class="btn btn-success">Inserir Endereço</button>
+                            </a>
+                        </wicket:link>
+                    </div>
+
+                    <hr />
+
+                    <div wicket:id="divEnderecos">
+                        <table class="table table-striped table-bordered table-hover">
+                            <tr>
+                                <th scope="col">CEP</th>
+                                <th scope="col">Logradouro</th>
+                                <th scope="col">Bairro</th>
+                                <th scope="col">Número</th>
+                                <th scope="col">Complemento</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Cidade</th>
+                                <th scope="col">Endereço Principal</th>
+                                <th scope="col" colspan="2">Ações</th>
+                            </tr>
+                            <tr wicket:id="enderecos">
+                                <td wicket:id="cep">[Nome]</td>
+                                <td wicket:id="logradouro">[Tipo de Pessoa]</td>
+                                <td wicket:id="bairro">[CPF/CPNJ]</td>
+                                <td wicket:id="numero">[Razão Social/Nome]</td>
+                                <td wicket:id="complemento">[Nome Alternativo]</td>
+                                <td wicket:id="estado">[E-mail]</td>
+                                <td wicket:id="cidade">[RG]</td>
+                                <td wicket:id="enderecoPrincipal">[Endereço Principal]</td>
+                                <td wicket:id="editarEndereco"><a href="#">Editar</a></td>
+                                <td wicket:id="excluirEndereco"><a href="#">Excluir</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div wicket:id="modalEndereco"></div>
+                    <div wicket:id="modalConfirmacao"></div>
+                </div>
+            </div>
+        </div>
+
+    </wicket:panel>
+</body>
+</html>

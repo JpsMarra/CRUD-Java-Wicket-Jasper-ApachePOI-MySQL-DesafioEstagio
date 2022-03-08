@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:wicket="http://wicket.apache.org">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <wicket:panel>
+        <div style="margin: 10px">
+            <form wicket:id="formConfirmacao" action="">
+                <div class="form-group">
+                    <label>Tem certeza que deseja realizar essa ação? Isso não poderá ser desfeito.</label>
+                </div>
+                <hr/>
+                <div class="form-group">
+                    <button wicket:id="botaoSim" type="button" class="btn btn-primary">Excluir</button>
+                    <button wicket:id="botaoNao" type="button" class="btn btn-secondary" data-dismiss="modal">Fechar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </wicket:panel>
+</body>
+</html>

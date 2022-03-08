@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:wicket="http://wicket.apache.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Desafio Estagio</title>
+</head>
+<body>
+    <wicket:extend>
+
+        <div style="margin: 10px">
+            <div id="blocoEsquerdo">
+                <wicket:link>
+                    <a wicket:id="botaoCriar">
+                        <button type="button" class="btn btn-success">Criar (+)</button>
+                    </a>
+                </wicket:link>
+            </div>
+
+            <hr />
+
+            <div wicket:id="modalFormulario"></div>
+            <div wicket:id="modalConfirmacao"></div>
+
+            <br/>
+
+            <form wicket:id="formularioFiltrar" class="form-group">
+
+                <div class="row">
+
+                    <div class="col">
+                        <label>Tipo de Pessoa</label>
+                        <select class="form-control" wicket:id="pesquisaTipoPessoa"></select>
+                    </div>
+
+                    <div class="col">
+                        <label>Nome/Razão Social</label>
+                        <input type="text" class="form-control" placeholder="Digite um Nome/Razão Social:"
+                               wicket:id="pesquisaRazaoSocial"/></div>
+
+                    <div class="col">
+                        <label>CPF/CNPJ</label>
+                        <input type="text" class="form-control" placeholder="Digite um CPF/CNPJ:" wicket:id="pesquisaCpfCnpj"/>
+                    </div>
+
+                    <div>
+                        <div>
+                        <label>Ativo</label>
+                        </div>
+                        <div class="col; btn-group btn-group-toggle" data-toggle="buttons">
+                        <wicket:container wicket:id="pesquisaAtivo">
+                            <label class="btn btn-secondary active">
+                            <input wicket:id="ativoSim" name="options" type="radio" autocomplete="on" checked>Sim</input>
+                            </label>
+                            <label class="btn btn-secondary">
+                            <input wicket:id="ativoNao" name="options" type="radio" autocomplete="on">Não</input>
+                            </label>
+                        </wicket:container>
+                    </div>
+                    </div>
+
+                    <div>
+                    <label>&nbsp</label>
+                    <div class="col">
+                        <a wicket:id="botaoFiltrar">
+                            <button type="button" class="btn btn-primary">Filtrar</button>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+
+            </form>
+
+            <br/>
+            <hr />
+
+
+            <div style="text-align: right">
+                <a wicket:id="botaoExcel">
+                    <button type="button" class="btn btn-primary">Excel</button>
+                </a>
+                <a wicket:id="botaoPdf">
+                    <button type="button" class="btn btn-secondary">PDF</button>
+                </a>
+            </div>
+
+            <br />
+
+            <div wicket:id="divResultados">
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <th scope="col">Tipo de Pessoa</th>
+                        <th scope="col">CPF/CNPJ</th>
+                        <th scope="col">Razão Social/Nome</th>
+<!--                        <th scope="col">Nome Alternativo</th>-->
+                        <th scope="col">E-mail</th>
+<!--                        <th scope="col">RG</th>-->
+                        <th scope="col">Telefone</th>
+                        <th scope="col">Inscrição Estadual</th>
+<!--                        <th scope="col">Data de Nascimento</th>-->
+                        <th scope="col">Ativo</th>
+                        <th scope="col" colspan="4">Ações</th>
+                    </tr>
+                    <tr wicket:id="pessoas">
+                        <td wicket:id="tipoPessoa">[Tipo de Pessoa]</td>
+                        <td wicket:id="cpfCnpj">[CPF/CPNJ]</td>
+                        <td wicket:id="razaoSocial">[Razão Social/Nome]</td>
+<!--                        <td wicket:id="nomeAlternativo">[Nome Alternativo]</td>-->
+                        <td wicket:id="email">[E-mail]</td>
+<!--                        <td wicket:id="rg">[RG]</td>-->
+                        <td wicket:id="telefone">[Telefone]</td>
+                        <td wicket:id="inscricaoEstadual">[Inscrição Estadual]</td>
+<!--                        <td wicket:id="dataNascimento">[Data de Nascimento]</td>-->
+                        <td wicket:id="ativo">[Ativo]</td>
+                        <td wicket:id="linkEditar"><a href="#">Editar</a></td>
+                        <td wicket:id="linkExcluir"><a href="#">Excluir</a></td>
+                        <td wicket:id="linkExcel"><a href="#">Excel</a></td>
+                        <td wicket:id="linkPdf"><a href="#">PDF</a></td>
+                    </tr>
+                    <tfoot>
+                    <tr>
+                        <td wicket:id="navigator"></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </wicket:extend>
+</body>
+</html>

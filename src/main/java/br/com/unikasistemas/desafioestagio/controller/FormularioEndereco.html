@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:wicket="http://wicket.apache.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<wicket:panel>
+    <div style="margin: 10px">
+        <div>
+            <br/>
+            <p wicket:id="titulo2">[titulo]</p>
+            <br/>
+        </div>
+
+        <form wicket:id="formularioEndereco" name="formularioEndereco">
+
+            <div class="row">
+                <div class="col">
+                    <label>CEP</label>
+                    <input class="form-control" wicket:id="cep" type="text" placeholder="xxxxx-xxx"/>
+                </div>
+                <br/>
+                <div class="col">
+                    <label>Logradouro</label>
+                    <input class="form-control" wicket:id="logradouro" type="text" placeholder="Logradouro"/>
+                </div>
+                <br/>
+                <div class="col">
+                    <label>Bairro</label>
+                    <input class="form-control" wicket:id="bairro" type="text" placeholder="Bairro"/>
+                </div>
+                <br/>
+            </div>
+            <br/>
+
+            <div class="row">
+                <div class="col">
+                    <label>Número</label>
+                    <input class="form-control" wicket:id="numero" type="text" placeholder="Número"/>
+                </div>
+                <br/>
+                <div class="col">
+                    <label>Complemento</label>
+                    <input class="form-control" wicket:id="complemento" type="text" placeholder="Complemento"/>
+                </div>
+                <br/>
+            </div>
+            <br/>
+
+            <div class="row">
+                <div class="col">
+                    <label>Estado</label>
+                    <input class="form-control" wicket:id="estado" type="text" placeholder="Estado"/>
+                </div>
+                <br/>
+                <div class="col">
+                    <label>Cidade</label>
+                    <input class="form-control" wicket:id="cidade" type="text" placeholder="Cidade"/>
+                </div>
+                <br/>
+            </div>
+            <br/>
+
+            <div class="row">
+                <br/>
+                <div class="col">
+                    <div>
+                        <label>Endereço Principal</label>
+                    </div>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <wicket:container wicket:id="enderecoPrincipal">
+                            <label class="btn btn-secondary active">
+                                <input wicket:id="principalSim" type="radio" name="principalSim" checked="checked" autocomplete="on">Sim</input>
+                            </label>
+                            <label class="btn btn-secondary">
+                                <input wicket:id="principalNao" type="radio" name="principalNao" autocomplete="off">Não</input>
+                            </label>
+                        </wicket:container>
+                    </div>
+                </div>
+                <br/>
+            </div>
+            <br/>
+
+            <div>
+                <button wicket:id="botaoSubmit" type="submit" class="btn btn-primary" name="submit">Salvar</button>
+            </div>
+
+        </form>
+    </div>
+</wicket:panel>
+
+</body>
+</html>
