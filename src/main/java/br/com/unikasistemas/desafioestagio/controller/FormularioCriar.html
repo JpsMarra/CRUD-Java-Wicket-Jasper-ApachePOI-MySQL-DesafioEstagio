@@ -7,7 +7,6 @@
 <body>
     <wicket:panel>
 
-
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link active" id="nav-geral-tab" data-toggle="tab" href="#nav-geral" role="tab" aria-controls="nav-geral" aria-selected="true">Geral</a>
@@ -30,13 +29,7 @@
                         <div class="row">
                             <div class="col">
                                 <label>Tipo de Pessoa</label>
-                                <select class="form-control" wicket:id="tipoPessoa">
-                                </select>
-                            </div>
-                            <br/>
-                            <div class="col">
-                                <label>CPF/CNPJ</label>
-                                <input class="form-control" wicket:id="cpfCnpj" type="text" placeholder="CPF/CNPJ"/>
+                                <select class="form-control" wicket:id="tipoPessoa"></select>
                             </div>
                             <br/>
                             <div class="col">
@@ -45,26 +38,9 @@
                                        placeholder="Razão Social/Nome"/>
                             </div>
                             <br/>
-                        </div>
-
-                        <br/>
-
-                        <div class="row">
                             <div class="col">
-                                <label>Nome Alternativo</label>
-                                <input class="form-control" wicket:id="nomeAlternativo" type="text"
-                                       placeholder="Nome Alternativo"/>
-                            </div>
-                            <br/>
-                            <div class="col">
-                                <label>E-mail</label>
-                                <input class="form-control" wicket:id="email" type="text"
-                                       placeholder="name@example.com"/>
-                            </div>
-                            <br/>
-                            <div class="col">
-                                <label>RG</label>
-                                <input class="form-control" wicket:id="rg" type="text" placeholder="RG"/>
+                                <label>CPF/CNPJ</label>
+                                <input class="form-control" wicket:id="cpfCnpj" type="text" placeholder="CPF/CNPJ"/>
                             </div>
                             <br/>
                         </div>
@@ -78,15 +54,45 @@
                             </div>
                             <br/>
                             <div class="col">
-                                <label>Inscrição Estadual</label>
-                                <input class="form-control" wicket:id="inscricaoEstadual" type="text"
-                                       placeholder="Inscrição Estadual"/>
+                                <label>E-mail</label>
+                                <input class="form-control" wicket:id="email" type="text"
+                                       placeholder="name@example.com"/>
                             </div>
                             <br/>
-                            <div class="col">
-                                <label>Data de Nascimento</label>
-                                <input class="form-control" wicket:id="dataNascimento" type="text"
-                                       placeholder="dd/mm/yyyy"/>
+                        </div>
+
+                        <br/>
+
+                        <div class="row">
+                            <div wicket:id="containerPjVisible">
+                                <div wicket:id="containerPj">
+                                    <div class="col">
+                                        <label>Nome Alternativo</label>
+                                        <input class="form-control" wicket:id="nomeAlternativo" type="text"
+                                               placeholder="Nome Alternativo"/>
+                                    </div>
+                                    <br/>
+                                    <div class="col">
+                                        <label>Inscrição Estadual</label>
+                                        <input class="form-control" wicket:id="inscricaoEstadual" type="text"
+                                               placeholder="Inscrição Estadual"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <div wicket:id="containerPfVisible">
+                                <div wicket:id="containerPf">
+                                    <div class="col">
+                                        <label>RG</label>
+                                        <input class="form-control" wicket:id="rg" type="text" placeholder="RG"/>
+                                    </div>
+                                    <br/>
+                                    <div class="col">
+                                        <label>Data de Nascimento</label>
+                                        <input class="form-control" wicket:id="dataNascimento" type="text"
+                                               placeholder="dd/mm/yyyy"/>
+                                    </div>
+                                </div>
                             </div>
                             <br/>
                         </div>

@@ -24,53 +24,57 @@
 
             <br/>
 
-            <form wicket:id="formularioFiltrar" class="form-group">
+            <div wicket:id="containerFiltrar">
+                <form wicket:id="formularioFiltrar" class="form-group">
 
-                <div class="row">
+                    <div class="row">
 
-                    <div class="col">
-                        <label>Tipo de Pessoa</label>
-                        <select class="form-control" wicket:id="pesquisaTipoPessoa"></select>
-                    </div>
-
-                    <div class="col">
-                        <label>Nome/Razão Social</label>
-                        <input type="text" class="form-control" placeholder="Digite um Nome/Razão Social:"
-                               wicket:id="pesquisaRazaoSocial"/></div>
-
-                    <div class="col">
-                        <label>CPF/CNPJ</label>
-                        <input type="text" class="form-control" placeholder="Digite um CPF/CNPJ:" wicket:id="pesquisaCpfCnpj"/>
-                    </div>
-
-                    <div>
-                        <div>
-                        <label>Ativo</label>
+                        <div class="col">
+                            <label>Tipo de Pessoa</label>
+                            <select class="form-control" wicket:id="tipoPessoa"></select>
                         </div>
-                        <div class="col; btn-group btn-group-toggle" data-toggle="buttons">
-                        <wicket:container wicket:id="pesquisaAtivo">
-                            <label class="btn btn-secondary active">
-                            <input wicket:id="ativoSim" name="options" type="radio" autocomplete="on" checked>Sim</input>
-                            </label>
-                            <label class="btn btn-secondary">
-                            <input wicket:id="ativoNao" name="options" type="radio" autocomplete="on">Não</input>
-                            </label>
-                        </wicket:container>
-                    </div>
+
+                        <div class="col">
+                            <label>Nome/Razão Social</label>
+                            <input type="text" class="form-control" placeholder="Digite um Nome/Razão Social:"
+                                   wicket:id="razaoSocial"/></div>
+
+                        <div class="col">
+                            <label>CPF/CNPJ</label>
+                            <input type="text" class="form-control" placeholder="Digite um CPF/CNPJ:"
+                                   wicket:id="cpfCnpj"/>
+                        </div>
+
+                        <div>
+                            <div class="col">
+                                <label>Ativo</label>
+                                <select class="form-control" wicket:id="ativo"></select>
+                            </div>
+<!--                            <div class="col; btn-group btn-group-toggle" data-toggle="buttons">-->
+<!--                                <wicket:container wicket:id="ativo">-->
+<!--                                    <label class="btn btn-secondary active">-->
+<!--                                        <input wicket:id="ativoSim" name="options" type="radio" autocomplete="on"-->
+<!--                                               checked>Sim</input>-->
+<!--                                    </label>-->
+<!--                                    <label class="btn btn-secondary">-->
+<!--                                        <input wicket:id="ativoNao" name="options" type="radio"-->
+<!--                                               autocomplete="on">Não</input>-->
+<!--                                    </label>-->
+<!--                                </wicket:container>-->
+<!--                            </div>-->
+                        </div>
+
+                        <div>
+                            <label>&nbsp</label>
+                            <div class="col">
+                                    <button type="submit" class="btn btn-primary" name="submit">Filtrar</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                    <label>&nbsp</label>
-                    <div class="col">
-                        <a wicket:id="botaoFiltrar">
-                            <button type="button" class="btn btn-primary">Filtrar</button>
-                        </a>
-                    </div>
-                    </div>
-                </div>
 
-
-            </form>
+                </form>
+            </div>
 
             <br/>
             <hr />

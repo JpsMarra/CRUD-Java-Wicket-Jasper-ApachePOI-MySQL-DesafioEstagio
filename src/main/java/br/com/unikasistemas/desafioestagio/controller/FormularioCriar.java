@@ -4,6 +4,7 @@ import br.com.unikasistemas.desafioestagio.model.*;
 import br.com.unikasistemas.desafioestagio.view.Inicio;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
@@ -21,9 +22,9 @@ import org.apache.wicket.model.*;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.StringValidator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FormularioCriar extends Panel {
 
@@ -38,7 +39,7 @@ public class FormularioCriar extends Panel {
     public Pessoa pessoa;
     public CompoundPropertyModel<Pessoa> compoundPropertyModelPessoa;
     public Form<Pessoa> formularioPessoa;
-    public DropDownChoice<TipoPessoa> comboTipoPessoa;
+    public DropDownChoice<Integer> comboTipoPessoa;
     public TextField<String> inputCpfCnpj;
     public TextField<String> inputRazaoSocial;
     public TextField<String> inputNomeAlternativo;
@@ -47,6 +48,10 @@ public class FormularioCriar extends Panel {
     public TextField<String> inputTelefone;
     public TextField<String> inputInscricaoEstadual;
     public RadioGroup inputAtivo;
+    public WebMarkupContainer containerPj;
+    public WebMarkupContainer containerPf;
+    public WebMarkupContainer containerPjVisible;
+    public WebMarkupContainer containerPfVisible;
 
     public LoadableDetachableModel enderecosModel(final Pessoa pessoa){
         enderecosModel = new LoadableDetachableModel(){
@@ -65,11 +70,9 @@ public class FormularioCriar extends Panel {
         //Adicionando os componentes na página
         add(modalConfirmacao());
         add(modalEndereco());
-
         add(containerEnderecos());
         containerEnderecos.add(listaEnderecos());
         add(botaoInserirEndereco());
-
 
         //Titulo
         add(new Label("titulo", "Criação de Pessoa"));
@@ -86,10 +89,37 @@ public class FormularioCriar extends Panel {
         add(formularioPessoa);
         //Adicionando o formulario na página
 
+        List tiposPessoa = Arrays.stream(TipoPessoa.values()).map(TipoPessoa::getId).collect(Collectors.toList());
+        ChoiceRenderer<Integer> choices = new ChoiceRenderer<Integer>(){
+            @Override
+            public Object getDisplayValue(Integer object) {
+                return TipoPessoa.getLabel(object);
+            }
+
+            @Override
+            public String getIdValue(Integer object, int index) {
+                return object.toString();
+            }
+        };
+
         //Declaração dos inputs de texto, dropdown e radiogroup do formulario
-        comboTipoPessoa = new DropDownChoice<>("tipoPessoa",
-                Arrays.asList(TipoPessoa.values()), new ChoiceRenderer<TipoPessoa>("label") {});
+        comboTipoPessoa = new DropDownChoice<Integer>("tipoPessoa", tiposPessoa, choices);
+        comboTipoPessoa.setOutputMarkupId(true);
+        comboTipoPessoa.setOutputMarkupPlaceholderTag(true);
         comboTipoPessoa.setNullValid(false);
+        comboTipoPessoa.add(new AjaxFormComponentUpdatingBehavior("change") {
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+                target.add(containerPjVisible);
+                target.add(containerPfVisible);
+                if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.JURIDICA.getId())) {
+                    inputInscricaoEstadual.setRequired(true).add(StringValidator.maximumLength(30));
+                    inputNomeAlternativo.setRequired(true).add(StringValidator.maximumLength(50));
+                }
+                if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.FISICA.getId())) {
+                    inputRg.setLabel(Model.of("RG")).setRequired(true).add(StringValidator.maximumLength(15));
+                }
+        }});
 
         inputCpfCnpj = new TextField<String>("cpfCnpj");
         inputRazaoSocial = new TextField<String>("razaoSocial");
@@ -102,17 +132,54 @@ public class FormularioCriar extends Panel {
         inputAtivo.add(new Radio("ativoSim", new Model<Boolean>(true)));
         inputAtivo.add(new Radio("ativoNao", new Model<Boolean>(false)));
 
-        formularioPessoa.add(comboTipoPessoa, inputCpfCnpj,inputRazaoSocial, inputNomeAlternativo, inputEmail, inputRg,inputTelefone,
-                inputInscricaoEstadual, inputAtivo, criarDataTextFieldNascimento());
+        formularioPessoa.add(comboTipoPessoa, inputCpfCnpj,inputRazaoSocial, inputEmail, inputTelefone, inputAtivo);
+
+        containerPf = new WebMarkupContainer("containerPf"){
+            @Override
+            public boolean isVisible(){
+                if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.FISICA.getId())){
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }};
+        containerPfVisible = new WebMarkupContainer("containerPfVisible");
+        containerPfVisible.setOutputMarkupPlaceholderTag(true);
+        containerPfVisible.setOutputMarkupId(true);
+        containerPf.add(inputRg);
+        containerPf.add(criarDataTextFieldNascimento());
+        containerPf.setOutputMarkupPlaceholderTag(true);
+        containerPf.setOutputMarkupId(true);
+        containerPfVisible.add(containerPf);
+        formularioPessoa.add(containerPfVisible);
+
+        containerPj = new WebMarkupContainer("containerPj"){
+            @Override
+            public boolean isVisible(){
+                if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.JURIDICA.getId())){
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }};
+        containerPjVisible = new WebMarkupContainer("containerPjVisible");
+        containerPjVisible.setOutputMarkupPlaceholderTag(true);
+        containerPjVisible.setOutputMarkupId(true);
+        containerPj.add(inputNomeAlternativo);
+        containerPj.add(inputInscricaoEstadual);
+        containerPj.setOutputMarkupPlaceholderTag(true);
+        containerPj.setOutputMarkupId(true);
+        containerPjVisible.add(containerPj);
+        formularioPessoa.add(containerPjVisible);
 
         //Validadores
         inputRazaoSocial.setLabel(Model.of("Razão Social/Nome")).setRequired(true).add(StringValidator.maximumLength(50));
-        inputNomeAlternativo.setLabel(Model.of("Nome Alternativo")).setRequired(true).add(StringValidator.maximumLength(50));
         comboTipoPessoa.setLabel(Model.of("Tipo de Pessoa")).setRequired(true);
         inputCpfCnpj.setLabel(Model.of("CPF/CNPJ")).setRequired(true).add(StringValidator.maximumLength(18));
         inputEmail.setLabel(Model.of("E-mail do Contato")).add(EmailAddressValidator.getInstance());
-        inputInscricaoEstadual.setLabel(Model.of("Inscrição Estadual")).setRequired(true).add(StringValidator.maximumLength(30));
-        inputRg.setLabel(Model.of("RG")).setRequired(true).add(StringValidator.maximumLength(15));
+
 
         //Mensagem de Feedback para os Validadores
         add(new FeedbackPanel("feedbackMessage", new ErrorLevelFeedbackMessageFilter(FeedbackMessage.ERROR)));

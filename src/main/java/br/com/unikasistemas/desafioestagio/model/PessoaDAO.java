@@ -45,57 +45,42 @@ public class PessoaDAO implements Serializable {
         return entityManager.createQuery("FROM " + Pessoa.class.getName()).getResultList();
     }
 
-    public List<Pessoa> Filter(Pessoa pessoa) {
-        StringBuilder stringQuery = new StringBuilder("select p from pessoa p");
+    public List<Pessoa> filterPessoa(Pessoa pessoa) {
 
-        int aux0 = 0;
-        int aux1 = 0;
+        StringBuilder stringQuery = new StringBuilder("select p from Pessoa p ");
+            stringQuery.append(" where tipoPessoa in (:tiposPessoa)");
 
-
-        if(pessoa.getTipoPessoa() != null){
-            stringQuery.append("where :tipoPessoa = " + pessoa.getTipoPessoa());
-            aux0++;
+        if(pessoa.getRazaoSocial() != null) {
+            stringQuery.append(" and razaoSocial like :razaoSocial");
         }
 
-        if(pessoa.getRazaoSocial() != null){
-            if(aux0>aux1){
-                stringQuery.append("and");
-                aux0++;
-            } else {
-                stringQuery.append("where");
-            }
-            stringQuery.append(":razaoSocial = " + pessoa.getRazaoSocial());
-            aux1++;
+        if(pessoa.getCpfCnpj() != null) {
+            stringQuery.append(" and cpfCnpj like :cpfCnpj");
         }
-
-        if(pessoa.getCpfCnpj() != null){
-            if(aux0>aux1){
-                stringQuery.append("and");
-                aux0++;
-            } else {
-                stringQuery.append("where");
-            }
-            stringQuery.append(":cpfCnpj = " + pessoa.getCpfCnpj());
-            aux1++;
-        }
-
 
         if(pessoa.getAtivoNome() != null){
-            if(aux0>aux1){
-                stringQuery.append("and");
-                aux0++;
-            } else {
-                stringQuery.append("where");
-            }
-            stringQuery.append(":ativo = " + pessoa.getAtivoNome());
-            aux1++;
+            stringQuery.append(" and ativo = :ativo ");
         }
 
         Query sqlQuery = entityManager.createQuery(stringQuery.toString());
-        sqlQuery.setParameter("tipoPessoa", pessoa.getTipoPessoa());
-        sqlQuery.setParameter("razaoSocial", pessoa.getRazaoSocial());
-        sqlQuery.setParameter("cpfCnpj", pessoa.getCpfCnpj());
-        sqlQuery.setParameter("ativo", pessoa.getAtivoNome());
+
+        if(pessoa.getTipoPessoa() != null){
+            sqlQuery.setParameter("tiposPessoa", pessoa.getTipoPessoa());
+        }else{
+            sqlQuery.setParameter("tiposPessoa", pessoa.getTiposPessoa());
+        }
+
+        if(pessoa.getRazaoSocial() != null) {
+            sqlQuery.setParameter("razaoSocial", "%" + pessoa.getRazaoSocial() + "%");
+        }
+
+        if(pessoa.getCpfCnpj() != null){
+            sqlQuery.setParameter("cpfCnpj", "%" + pessoa.getCpfCnpj() + "%");
+        }
+
+        if(pessoa.getAtivoNome() != null){
+            sqlQuery.setParameter("ativo", pessoa.isAtivo());
+        }
 
         return sqlQuery.getResultList();
     }

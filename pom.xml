@@ -94,23 +94,26 @@
 		</dependency>
 
 		<!-- Jasper -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>4.5.1</version>
+		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>net.sf.jasperreports</groupId>-->
 <!--			<artifactId>jasperreports</artifactId>-->
 <!--			<version>6.2.0</version>-->
 <!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.lowagie</groupId>-->
-<!--			<artifactId>itext</artifactId>-->
-<!--			<version>2.1.7</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>commons-collections</groupId>-->
-<!--			<artifactId>commons-collections</artifactId>-->
-<!--			<version>3.2.1</version>-->
-<!--		</dependency>-->
-
-
+		<dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
 
 		<!-- LOGGING DEPENDENCIES - LOG4J -->
 		<dependency>

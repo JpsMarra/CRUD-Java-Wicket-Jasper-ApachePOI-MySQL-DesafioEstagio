@@ -1,8 +1,9 @@
 package br.com.unikasistemas.desafioestagio.view;
+
 import br.com.unikasistemas.desafioestagio.controller.Confirmacao;
 import br.com.unikasistemas.desafioestagio.controller.FormularioCriar;
 import br.com.unikasistemas.desafioestagio.model.*;
-import org.apache.wicket.Component;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -12,21 +13,19 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PageableListView;
-import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.datetime.markup.html.form.DateTextField;
-import sun.security.pkcs11.wrapper.CK_SSL3_MASTER_KEY_DERIVE_PARAMS;
+import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
+import org.apache.wicket.util.resource.IResourceStream;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Inicio extends HomePage {
 
@@ -34,81 +33,103 @@ public class Inicio extends HomePage {
     public FormularioCriar formCriar;
     public ModalWindow modalConfirmacao;
     public Confirmacao confirmacao;
-    public PageableListView<Pessoa> listaResultados;
     public WebMarkupContainer containerResultados;
-    public AjaxLink botaoCriar;
-    public AjaxButton botaoFiltrar;
     public Form<Pessoa> formularioFiltrar;
-    public DropDownChoice<TipoPessoa> pesquisaTipoPessoa;
+    public DropDownChoice<Integer> pesquisaTipoPessoa;
+    public DropDownChoice<Boolean> pesquisaAtivo;
     public TextField<String> pesquisaRazaoSocial;
     public TextField<String> pesquisaCpfCnpj;
-    public RadioGroup pesquisaAtivo;
     public List<Endereco> enderecos;
     public Pessoa pessoa;
-//    public CompoundPropertyModel<Pessoa> compoundPropertyModelPessoa;
+    public AjaxDownloadBehavior ajaxDownloadBehavior;
+    public AjaxDownloadBehavior ajaxDownloadBehaviorGeral;
+    public WebMarkupContainer containerFiltrar;
+    public List<Pessoa> pessoas;
+    public AjaxLink botaoCriar;
     public AjaxLink botaoExcel;
     public AjaxLink botaoPdf;
+    public AjaxLink linkEditar;
+    public AjaxLink linkExcluir;
+    public AjaxLink linkExcel;
+    public AjaxLink linkPdf;
+    public PageableListView listaResultados;
+    public byte[] bytes;
 
-    //Loadable Lista de Pessoas
+//    Loadable Lista de Pessoas
     LoadableDetachableModel pessoasModel = new LoadableDetachableModel(){
         @Override
         protected Object load() {
-            List<Pessoa> pessoas = PessoaDAO.getInstance().findAll();
+            pessoas = PessoaDAO.getInstance().findAll();
             return pessoas;
         }
     };
 
     public Inicio(){
 
-        //Adicionando componentes na página
+        //Adicionando componentes no construtor
         add(modalCriar());
         add(modalConfirmacao());
         add(containerResultados());
-        containerResultados.add(listaResultados());
-        containerResultados.add(new AjaxPagingNavigator("navigator", listaResultados()));
-        containerResultados.setVersioned(false);
         add(botaoCriar());
         add(botaoExcel());
         add(botaoPdf());
+        add(containerFiltrar());
 
-        pessoa = new Pessoa();
-//        compoundPropertyModelPessoa = new CompoundPropertyModel<Pessoa>(pessoa);
-        formularioFiltrar = new Form<Pessoa>("formularioFiltrar");
+        ajaxDownloadBehavior = ajaxDownloadBehavior();
+        add(ajaxDownloadBehavior).setOutputMarkupId(true);
 
-        add(formularioFiltrar);
-
-        //Primeiro item do formulário - DropDown
-        pesquisaTipoPessoa = new DropDownChoice<>("pesquisaTipoPessoa",
-                Arrays.asList(TipoPessoa.values()), new ChoiceRenderer<TipoPessoa>("label"));
-//        pesquisaTipoPessoa.setNullValid(false);
-        //Adicionando 2 TextFields e um Radio button no formulario
-        pesquisaRazaoSocial = new TextField<>("pesquisaRazaoSocial", new Model<String>());
-        pesquisaCpfCnpj = new TextField<>("pesquisaCpfCnpj", new Model<String>());
-        pesquisaAtivo = new RadioGroup("pesquisaAtivo", new Model());
-        pesquisaAtivo.add(new Radio("ativoSim", new Model<Boolean>(true)));
-        pesquisaAtivo.add(new Radio("ativoNao", new Model<Boolean>(false)));
-
-        formularioFiltrar.add(pesquisaTipoPessoa, pesquisaRazaoSocial, pesquisaCpfCnpj, pesquisaAtivo, botaoFiltrar(pessoa));
-
+        ajaxDownloadBehaviorGeral = ajaxDownloadBehaviorGeral();
+        add(ajaxDownloadBehaviorGeral).setOutputMarkupId(true);
     }
 
-
-
-    private AjaxButton botaoFiltrar(Pessoa pessoa){
-        botaoFiltrar = new AjaxButton("botaoFiltrar", formularioFiltrar) {
-
+    private WebMarkupContainer containerFiltrar(){
+        containerFiltrar = new WebMarkupContainer("containerFiltrar");
+        pessoa = new Pessoa();
+        formularioFiltrar = new Form<Pessoa>("formularioFiltrar", new CompoundPropertyModel<>(pessoa)){
             @Override
-            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-
-                PessoaDAO.getInstance().Filter(pessoa);
-
-//                listaResultados.setDefaultModelObject(pessoas);
-//                containerResultados.setVisible(true);
-//                target.add(containerResultados);
+            public void onSubmit() {
+                LoadableDetachableModel listaFiltrar = new LoadableDetachableModel() {
+                    @Override
+                    protected Object load() {
+                        return PessoaDAO.getInstance().filterPessoa(pessoa);
+                    }
+                };
+                containerResultados.addOrReplace(listaResultados(listaFiltrar));
+                containerResultados.addOrReplace(new AjaxPagingNavigator("navigator", listaResultados).setOutputMarkupId(true));
 
             }
         };
-        return botaoFiltrar;
+
+        List tiposPessoa = Arrays.stream(TipoPessoa.values()).map(TipoPessoa::getId).collect(Collectors.toList());
+        ChoiceRenderer<Integer> choices = new ChoiceRenderer<Integer>(){
+            @Override
+            public Object getDisplayValue(Integer object) {
+                return TipoPessoa.getLabel(object);
+            }
+
+            @Override
+            public String getIdValue(Integer object, int index) {
+                return object.toString();
+            }
+        };
+
+        pesquisaTipoPessoa = new DropDownChoice<Integer>("tipoPessoa", tiposPessoa, choices);
+        pesquisaTipoPessoa.setNullValid(true);
+        pesquisaTipoPessoa.setOutputMarkupId(true);
+
+        pesquisaRazaoSocial = new TextField<>("razaoSocial");
+        pesquisaCpfCnpj = new TextField<>("cpfCnpj");
+
+        pesquisaAtivo = new DropDownChoice<Boolean>("ativo", Arrays.asList(true, false), new ChoiceRenderer<Boolean>());
+        pesquisaAtivo.setNullValid(false);
+        pesquisaAtivo.setOutputMarkupId(true);
+
+
+        formularioFiltrar.add(pesquisaTipoPessoa, pesquisaRazaoSocial, pesquisaCpfCnpj, pesquisaAtivo);
+        formularioFiltrar.setOutputMarkupId(true);
+        containerFiltrar.add(formularioFiltrar);
+        containerFiltrar.setOutputMarkupId(true);
+        return containerFiltrar;
     }
 
     private AjaxLink botaoCriar(){
@@ -123,6 +144,7 @@ public class Inicio extends HomePage {
                 modalCriar.show(target);
             }
         };
+        botaoCriar.setOutputMarkupId(true);
         return botaoCriar;
     }
 
@@ -148,9 +170,11 @@ public class Inicio extends HomePage {
         botaoExcel = new AjaxLink("botaoExcel") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                //Gerar Excel de todas as pessoas
+                bytes = new CriaExcel().criaExcelGeral(pessoas);
+                ajaxDownloadBehaviorGeral.initiate(target);
             }
         };
+        botaoExcel.setOutputMarkupId(true);
         return botaoExcel;
     }
 
@@ -161,72 +185,165 @@ public class Inicio extends HomePage {
                 //Gerar PDF de todas as pessoas
             }
         };
+        botaoPdf.setOutputMarkupId(true);
         return botaoPdf;
+    }
+
+    private AjaxLink linkEditar(Pessoa pessoa){
+        linkEditar = new AjaxLink("linkEditar") {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                formCriar = new FormularioCriar(modalCriar.getContentId(), pessoa, pessoa.getEnderecos());
+                modalCriar.setContent(formCriar);
+                modalCriar.show(target);
+            }
+        };
+        linkEditar.setOutputMarkupId(true);
+        return linkEditar;
+    }
+
+    private AjaxLink linkExcluir(){
+        linkExcluir = new AjaxLink("linkExcluir") {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                confirmacao = new Confirmacao(modalConfirmacao.getContentId(), modalConfirmacao){
+                    @Override
+                    public void retornoConfirmacao(AjaxRequestTarget target, boolean retorno) {
+                        if(retorno) {
+                            PessoaDAO.getInstance().removeById((pessoa.getIdPessoa()));
+                        }
+                    }
+                };
+                modalConfirmacao.setOutputMarkupPlaceholderTag(true);
+                modalConfirmacao.setContent(confirmacao);
+                modalConfirmacao.show(target);
+            }
+        };
+        linkExcluir.setOutputMarkupId(true);
+        return linkExcluir;
+    }
+
+    private AjaxLink linkExcel(Pessoa pessoa){
+        linkExcel = new AjaxLink("linkExcel") {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+                bytes = new CriaExcel().criaExcel(pessoa);
+                ajaxDownloadBehavior.initiate(target);
+            }
+        };
+        linkExcel.setOutputMarkupId(true);
+        return linkExcel;
+    }
+
+    private AjaxLink linkPdf(){
+        linkPdf = new AjaxLink("linkPdf") {
+            @Override
+            public void onClick(AjaxRequestTarget target) {
+
+            }
+        };
+        linkPdf.setOutputMarkupId(true);
+        return linkPdf;
+    }
+
+    private AjaxDownloadBehavior ajaxDownloadBehavior(){
+        ajaxDownloadBehavior = new AjaxDownloadBehavior(){
+            @Override
+            protected String getFileName() {
+                return "testeExcel.xlsx";
+            }
+
+            @Override
+            protected IResourceStream getResourceStream() {
+
+                return new AbstractResourceStreamWriter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void write(OutputStream output) throws IOException {
+                        try {
+                            output.write(bytes);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (output != null) {
+                                output.flush();
+                                output.close();
+                            }
+                        }
+                    }
+                };
+            }
+        };
+        return ajaxDownloadBehavior;
+    }
+
+    private AjaxDownloadBehavior ajaxDownloadBehaviorGeral(){
+        ajaxDownloadBehaviorGeral = new AjaxDownloadBehavior(){
+            @Override
+            protected String getFileName() {
+                return "testeExcel.xlsx";
+            }
+
+            @Override
+            protected IResourceStream getResourceStream() {
+
+                return new AbstractResourceStreamWriter() {
+                    private static final long serialVersionUID = -4006396448390364264L;
+
+                    @Override
+                    public void write(OutputStream output) throws IOException {
+                        try {
+                            output.write(bytes);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (output != null) {
+                                output.flush();
+                                output.close();
+                            }
+                        }
+                    }
+                };
+            }
+        };
+        return ajaxDownloadBehaviorGeral;
     }
 
     private WebMarkupContainer containerResultados(){
         //Corresponde a div de resultados no html
         containerResultados = new WebMarkupContainer("divResultados");
-        containerResultados.setVisible(true);
         containerResultados.setOutputMarkupPlaceholderTag(true);
+        PageableListView listaResultados = listaResultados(pessoasModel);
+        containerResultados.addOrReplace(listaResultados);
+        containerResultados.addOrReplace(new AjaxPagingNavigator("navigator", listaResultados).setOutputMarkupId(true));
         return containerResultados;
     }
 
-    private PageableListView listaResultados(){
-        listaResultados = new PageableListView<Pessoa>("pessoas", pessoasModel, 5) {
+    private PageableListView listaResultados(LoadableDetachableModel listaLoadable){
+        listaResultados = new PageableListView<Pessoa>("pessoas", listaLoadable, 10) {
             @Override
             protected void populateItem(final ListItem<Pessoa> listItem) {
-                final Pessoa pessoa = (Pessoa) listItem.getModelObject();
-                listItem.add(new Label("tipoPessoa", pessoa.getTipoPessoa().getLabel()));
-                listItem.add(new Label("cpfCnpj", pessoa.getCpfCnpj()));
-                listItem.add(new Label("razaoSocial", pessoa.getRazaoSocial()));
-//                listItem.add(new Label("nomeAlternativo", pessoa.getNomeAlternativo()));
-                listItem.add(new Label("email", pessoa.getEmail()));
-//                listItem.add(new Label("rg", pessoa.getRg()));
-                listItem.add(new Label("telefone", pessoa.getTelefone()));
-                listItem.add(new Label("inscricaoEstadual", pessoa.getInscricaoEstadual()));
-//                listItem.add(new Label("dataNascimento", pessoa.getDataNascimento()));
-                listItem.add(new Label("ativo", pessoa.getAtivoNome()));
-                listItem.add(new AjaxLink<Void>("linkEditar") {
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        formCriar = new FormularioCriar(modalCriar.getContentId(), pessoa, pessoa.getEnderecos());
-                        modalCriar.setContent(formCriar);
-                        modalCriar.show(target);
-                    }
-                });
-                listItem.add(new AjaxLink("linkExcluir") {
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        confirmacao = new Confirmacao(modalConfirmacao.getContentId(), modalConfirmacao){
-                            @Override
-                            public void retornoConfirmacao(AjaxRequestTarget target, boolean retorno) {
-                                if(retorno) {
-                                    PessoaDAO.getInstance().removeById((pessoa.getIdPessoa()));
-                                }
-                                target.add(containerResultados);
-                            }
-                        };
-                        modalConfirmacao.setOutputMarkupPlaceholderTag(true);
-                        modalConfirmacao.setContent(confirmacao);
-                        modalConfirmacao.show(target);
-                    }
-                });
-                listItem.add(new AjaxLink<Void>("linkExcel") {
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
-                        CriaExcel criaExcel = new CriaExcel();
-                        criaExcel.CriaExcel(pessoa);
-                    }
-                });
-                listItem.add(new AjaxLink<Void>("linkPdf") {
-                    @Override
-                    public void onClick(AjaxRequestTarget target) {
 
-                    }
-                });
+                final Pessoa pessoa = listItem.getModelObject();
+
+                listItem.add(new Label("tipoPessoa", TipoPessoa.getLabel(pessoa.getTipoPessoa()))).setOutputMarkupId(true);
+                listItem.add(new Label("cpfCnpj", pessoa.getCpfCnpj())).setOutputMarkupId(true);
+                listItem.add(new Label("razaoSocial", pessoa.getRazaoSocial())).setOutputMarkupId(true);
+                listItem.add(new Label("email", pessoa.getEmail())).setOutputMarkupId(true);
+                listItem.add(new Label("telefone", pessoa.getTelefone())).setOutputMarkupId(true);
+                listItem.add(new Label("inscricaoEstadual", pessoa.getInscricaoEstadual())).setOutputMarkupId(true);
+                listItem.add(new Label("ativo", pessoa.getAtivoNome())).setOutputMarkupId(true);
+                listItem.add(linkEditar(pessoa)).setOutputMarkupId(true);
+                listItem.add(linkExcluir()).setOutputMarkupId(true);
+                listItem.add(linkExcel(pessoa)).setOutputMarkupId(true);
+                listItem.add(linkPdf()).setOutputMarkupId(true);
+
+
+
             }
         };
+        listaResultados.setOutputMarkupId(true);
         return listaResultados;
     }
 
