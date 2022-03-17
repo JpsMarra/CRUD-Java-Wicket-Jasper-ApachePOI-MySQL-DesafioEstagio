@@ -299,8 +299,6 @@ public class FormularioCriar extends Panel {
                             @Override
                             public void retornoConfirmacao(AjaxRequestTarget target, boolean retorno) {
                                 if(retorno) {
-//                                    pessoa.getEnderecos().removeIf(end -> endereco.getIdEndereco().equals(end.getIdEndereco()));
-//                                    pessoa.getEnderecos().removeIf(endereco -> PessoaDAO.getInstance().getEnderecoById(endereco.getIdEndereco()).equals(endereco));
                                     pessoa.getEnderecos().remove(endereco);
                                     PessoaDAO.getInstance().removeEnderecoById(endereco.getIdEndereco());
                                 }

@@ -3,10 +3,9 @@ package br.com.unikasistemas.desafioestagio.view;
 import br.com.unikasistemas.desafioestagio.controller.Confirmacao;
 import br.com.unikasistemas.desafioestagio.controller.FormularioCriar;
 import br.com.unikasistemas.desafioestagio.model.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -16,7 +15,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
 import org.apache.wicket.util.resource.IResourceStream;
 
@@ -43,6 +41,7 @@ public class Inicio extends HomePage {
     public Pessoa pessoa;
     public AjaxDownloadBehavior ajaxDownloadBehavior;
     public AjaxDownloadBehavior ajaxDownloadBehaviorGeral;
+    public AjaxDownloadBehavior ajaxDownloadBehaviorPdf;
     public WebMarkupContainer containerFiltrar;
     public List<Pessoa> pessoas;
     public AjaxLink botaoCriar;
@@ -80,6 +79,10 @@ public class Inicio extends HomePage {
 
         ajaxDownloadBehaviorGeral = ajaxDownloadBehaviorGeral();
         add(ajaxDownloadBehaviorGeral).setOutputMarkupId(true);
+
+        ajaxDownloadBehaviorPdf = ajaxDownloadBehaviorPdf();
+        add(ajaxDownloadBehaviorPdf).setOutputMarkupId(true);
+
     }
 
     private WebMarkupContainer containerFiltrar(){
@@ -113,14 +116,19 @@ public class Inicio extends HomePage {
             }
         };
 
-        pesquisaTipoPessoa = new DropDownChoice<Integer>("tipoPessoa", tiposPessoa, choices);
+        pesquisaTipoPessoa = new DropDownChoice<Integer>("tipoPessoa", tiposPessoa, choices){
+            @Override
+            protected String getNullValidDisplayValue() {
+                return "Escolha";
+            }
+        };
         pesquisaTipoPessoa.setNullValid(true);
         pesquisaTipoPessoa.setOutputMarkupId(true);
 
         pesquisaRazaoSocial = new TextField<>("razaoSocial");
         pesquisaCpfCnpj = new TextField<>("cpfCnpj");
 
-        pesquisaAtivo = new DropDownChoice<Boolean>("ativo", Arrays.asList(true, false), new ChoiceRenderer<Boolean>());
+        pesquisaAtivo = new DropDownChoice<>("ativo", Arrays.asList(true, false), new ChoiceRenderer<>());
         pesquisaAtivo.setNullValid(false);
         pesquisaAtivo.setOutputMarkupId(true);
 
@@ -182,7 +190,8 @@ public class Inicio extends HomePage {
         botaoPdf = new AjaxLink("botaoPdf") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                //Gerar PDF de todas as pessoas
+                bytes = new CriaPdfReport().criaPdfReport(pessoas);
+                ajaxDownloadBehaviorPdf.initiate(target);
             }
         };
         botaoPdf.setOutputMarkupId(true);
@@ -235,11 +244,12 @@ public class Inicio extends HomePage {
         return linkExcel;
     }
 
-    private AjaxLink linkPdf(){
+    private AjaxLink linkPdf(Pessoa pessoa){
         linkPdf = new AjaxLink("linkPdf") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-
+                bytes = new CriaPdfReport().criaPdfReport(Arrays.asList(pessoa));
+                ajaxDownloadBehaviorPdf.initiate(target);
             }
         };
         linkPdf.setOutputMarkupId(true);
@@ -250,14 +260,14 @@ public class Inicio extends HomePage {
         ajaxDownloadBehavior = new AjaxDownloadBehavior(){
             @Override
             protected String getFileName() {
-                return "testeExcel.xlsx";
+                return "excelPessoa.xlsx";
             }
 
             @Override
             protected IResourceStream getResourceStream() {
 
                 return new AbstractResourceStreamWriter() {
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 5700270076507459074L;
 
                     @Override
                     public void write(OutputStream output) throws IOException {
@@ -282,14 +292,14 @@ public class Inicio extends HomePage {
         ajaxDownloadBehaviorGeral = new AjaxDownloadBehavior(){
             @Override
             protected String getFileName() {
-                return "testeExcel.xlsx";
+                return "excelPessoaGeral.xlsx";
             }
 
             @Override
             protected IResourceStream getResourceStream() {
 
                 return new AbstractResourceStreamWriter() {
-                    private static final long serialVersionUID = -4006396448390364264L;
+                    private static final long serialVersionUID = 3765743621913893567L;
 
                     @Override
                     public void write(OutputStream output) throws IOException {
@@ -308,6 +318,38 @@ public class Inicio extends HomePage {
             }
         };
         return ajaxDownloadBehaviorGeral;
+    }
+
+    private AjaxDownloadBehavior ajaxDownloadBehaviorPdf(){
+        ajaxDownloadBehaviorPdf = new AjaxDownloadBehavior(){
+            @Override
+            protected String getFileName() {
+                return "pdfPessoa.pdf";
+            }
+
+            @Override
+            protected IResourceStream getResourceStream() {
+
+                return new AbstractResourceStreamWriter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void write(OutputStream output) throws IOException {
+                        try {
+                            output.write(bytes);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            if (output != null) {
+                                output.flush();
+                                output.close();
+                            }
+                        }
+                    }
+                };
+            }
+        };
+        return ajaxDownloadBehaviorPdf;
     }
 
     private WebMarkupContainer containerResultados(){
@@ -337,7 +379,7 @@ public class Inicio extends HomePage {
                 listItem.add(linkEditar(pessoa)).setOutputMarkupId(true);
                 listItem.add(linkExcluir()).setOutputMarkupId(true);
                 listItem.add(linkExcel(pessoa)).setOutputMarkupId(true);
-                listItem.add(linkPdf()).setOutputMarkupId(true);
+                listItem.add(linkPdf(pessoa)).setOutputMarkupId(true);
 
 
 

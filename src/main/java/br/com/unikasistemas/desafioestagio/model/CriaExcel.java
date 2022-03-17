@@ -211,7 +211,7 @@ public class CriaExcel {
             Row row = sheetPessoas.createRow(rownum++);
             int cellnum = 0;
             Cell cellTipoPessoa = row.createCell(cellnum++);
-            cellTipoPessoa.setCellValue(pessoa.getTipoPessoa() == 1 ? "Pessoa Fisica" : "Pessoa Juridica");
+            cellTipoPessoa.setCellValue(pessoa.getTipoPessoa() == 1 ? "Pessoa Jurídica" : "Pessoa Física");
             Cell cellCpfCnpj = row.createCell(cellnum++);
             cellCpfCnpj.setCellValue(pessoa.getCpfCnpj());
             Cell cellRazaoSocial = row.createCell(cellnum++);

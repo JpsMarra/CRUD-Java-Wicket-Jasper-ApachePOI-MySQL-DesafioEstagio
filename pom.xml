@@ -86,24 +86,28 @@
 			<version>5.1.49</version>
 		</dependency>
 
+
 		<!-- Apache POI - Excel -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.10.1</version>
 		</dependency>
-
-		<!-- Jasper -->
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
-			<version>4.5.1</version>
+			<version>6.17.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.olap4j</groupId>
+					<artifactId>olap4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.lowagie</groupId>
+					<artifactId>itext</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>net.sf.jasperreports</groupId>-->
-<!--			<artifactId>jasperreports</artifactId>-->
-<!--			<version>6.2.0</version>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>com.lowagie</groupId>
 			<artifactId>itext</artifactId>

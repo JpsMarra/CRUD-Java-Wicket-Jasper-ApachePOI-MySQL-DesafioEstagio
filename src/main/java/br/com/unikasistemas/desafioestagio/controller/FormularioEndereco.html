@@ -7,6 +7,7 @@
 <body>
 
 <wicket:panel>
+
     <div style="margin: 10px">
         <div>
             <br/>
@@ -14,22 +15,22 @@
             <br/>
         </div>
 
-        <form wicket:id="formularioEndereco" name="formularioEndereco">
+        <form wicket:id="formularioEndereco" method="get" action="#" name="formularioEndereco">
 
             <div class="row">
                 <div class="col">
                     <label>CEP</label>
-                    <input class="form-control" wicket:id="cep" type="text" placeholder="xxxxx-xxx"/>
+                    <input id="cep" class="form-control" wicket:id="cep" type="text" placeholder="xxxxx-xxx" onblur="pesquisacep(this.value);"/>
                 </div>
                 <br/>
                 <div class="col">
                     <label>Logradouro</label>
-                    <input class="form-control" wicket:id="logradouro" type="text" placeholder="Logradouro"/>
+                    <input id="logradouro" class="form-control" wicket:id="logradouro" type="text" placeholder="Logradouro"/>
                 </div>
                 <br/>
                 <div class="col">
                     <label>Bairro</label>
-                    <input class="form-control" wicket:id="bairro" type="text" placeholder="Bairro"/>
+                    <input id="bairro" class="form-control" wicket:id="bairro" type="text" placeholder="Bairro"/>
                 </div>
                 <br/>
             </div>
@@ -52,12 +53,12 @@
             <div class="row">
                 <div class="col">
                     <label>Estado</label>
-                    <input class="form-control" wicket:id="estado" type="text" placeholder="Estado"/>
+                    <input id="estado" class="form-control" wicket:id="estado" type="text" placeholder="Estado"/>
                 </div>
                 <br/>
                 <div class="col">
                     <label>Cidade</label>
-                    <input class="form-control" wicket:id="cidade" type="text" placeholder="Cidade"/>
+                    <input id="cidade" class="form-control" wicket:id="cidade" type="text" placeholder="Cidade"/>
                 </div>
                 <br/>
             </div>
