@@ -3,6 +3,7 @@ package br.com.unikasistemas.desafioestagio.view;
 import br.com.unikasistemas.desafioestagio.controller.Confirmacao;
 import br.com.unikasistemas.desafioestagio.controller.FormularioCriar;
 import br.com.unikasistemas.desafioestagio.model.*;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 
@@ -14,7 +15,10 @@ import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PageableListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.resource.AbstractResourceStreamWriter;
 import org.apache.wicket.util.resource.IResourceStream;
 
@@ -63,6 +67,7 @@ public class Inicio extends HomePage {
         }
     };
 
+
     public Inicio(){
 
         //Adicionando componentes no construtor
@@ -88,6 +93,7 @@ public class Inicio extends HomePage {
     private WebMarkupContainer containerFiltrar(){
         containerFiltrar = new WebMarkupContainer("containerFiltrar");
         pessoa = new Pessoa();
+        pessoa.setAtivo(true);
         formularioFiltrar = new Form<Pessoa>("formularioFiltrar", new CompoundPropertyModel<>(pessoa)){
             @Override
             public void onSubmit() {
@@ -128,7 +134,18 @@ public class Inicio extends HomePage {
         pesquisaRazaoSocial = new TextField<>("razaoSocial");
         pesquisaCpfCnpj = new TextField<>("cpfCnpj");
 
-        pesquisaAtivo = new DropDownChoice<>("ativo", Arrays.asList(true, false), new ChoiceRenderer<>());
+        ChoiceRenderer<Boolean> choices2 = new ChoiceRenderer<Boolean>(){
+            @Override
+            public Object getDisplayValue(Boolean object) {
+                return object ? "Sim" : "Não";
+            }
+
+            @Override
+            public String getIdValue(Boolean object, int index) {
+                return super.getIdValue(object, index);
+            }
+        };
+        pesquisaAtivo = new DropDownChoice<Boolean>("ativo", Arrays.asList(true, false), choices2);
         pesquisaAtivo.setNullValid(false);
         pesquisaAtivo.setOutputMarkupId(true);
 
@@ -140,12 +157,18 @@ public class Inicio extends HomePage {
         return containerFiltrar;
     }
 
+
     private AjaxLink botaoCriar(){
         botaoCriar = new AjaxLink("botaoCriar"){
             @Override
             public void onClick(AjaxRequestTarget target) {
                 enderecos = new ArrayList<>();
-                formCriar = new FormularioCriar(modalCriar.getContentId(), new Pessoa(), enderecos);
+                formCriar = new FormularioCriar(modalCriar.getContentId(), new Pessoa(), enderecos, modalCriar){
+                    @Override
+                    public void afterCloseModalPessoa(AjaxRequestTarget target, Pessoa pessoaSubmetida) {
+                        target.add(containerResultados);
+                    }
+                };
                 modalCriar.setOutputMarkupPlaceholderTag(true);
                 modalCriar.setContent(formCriar);
                 formCriar.setOutputMarkupId(true);
@@ -202,7 +225,12 @@ public class Inicio extends HomePage {
         linkEditar = new AjaxLink("linkEditar") {
             @Override
             public void onClick(AjaxRequestTarget target) {
-                formCriar = new FormularioCriar(modalCriar.getContentId(), pessoa, pessoa.getEnderecos());
+                formCriar = new FormularioCriar(modalCriar.getContentId(), pessoa, pessoa.getEnderecos(), modalCriar){
+                    @Override
+                    public void afterCloseModalPessoa(AjaxRequestTarget target, Pessoa pessoaSubmetida) {
+                        target.add(containerResultados);
+                    }
+                };
                 modalCriar.setContent(formCriar);
                 modalCriar.show(target);
             }
@@ -211,7 +239,7 @@ public class Inicio extends HomePage {
         return linkEditar;
     }
 
-    private AjaxLink linkExcluir(){
+    private AjaxLink linkExcluir(Pessoa pessoa){
         linkExcluir = new AjaxLink("linkExcluir") {
             @Override
             public void onClick(AjaxRequestTarget target) {
@@ -220,6 +248,7 @@ public class Inicio extends HomePage {
                     public void retornoConfirmacao(AjaxRequestTarget target, boolean retorno) {
                         if(retorno) {
                             PessoaDAO.getInstance().removeById((pessoa.getIdPessoa()));
+                            target.add(containerResultados);
                         }
                     }
                 };
@@ -260,7 +289,7 @@ public class Inicio extends HomePage {
         ajaxDownloadBehavior = new AjaxDownloadBehavior(){
             @Override
             protected String getFileName() {
-                return "excelPessoa.xlsx";
+                return "excelPessoa.xls";
             }
 
             @Override
@@ -292,7 +321,7 @@ public class Inicio extends HomePage {
         ajaxDownloadBehaviorGeral = new AjaxDownloadBehavior(){
             @Override
             protected String getFileName() {
-                return "excelPessoaGeral.xlsx";
+                return "excelPessoaGeral.xls";
             }
 
             @Override
@@ -363,7 +392,7 @@ public class Inicio extends HomePage {
     }
 
     private PageableListView listaResultados(LoadableDetachableModel listaLoadable){
-        listaResultados = new PageableListView<Pessoa>("pessoas", listaLoadable, 10) {
+        listaResultados = new PageableListView<Pessoa>("pessoas", listaLoadable, 3) {
             @Override
             protected void populateItem(final ListItem<Pessoa> listItem) {
 
@@ -377,12 +406,9 @@ public class Inicio extends HomePage {
                 listItem.add(new Label("inscricaoEstadual", pessoa.getInscricaoEstadual())).setOutputMarkupId(true);
                 listItem.add(new Label("ativo", pessoa.getAtivoNome())).setOutputMarkupId(true);
                 listItem.add(linkEditar(pessoa)).setOutputMarkupId(true);
-                listItem.add(linkExcluir()).setOutputMarkupId(true);
+                listItem.add(linkExcluir(pessoa)).setOutputMarkupId(true);
                 listItem.add(linkExcel(pessoa)).setOutputMarkupId(true);
                 listItem.add(linkPdf(pessoa)).setOutputMarkupId(true);
-
-
-
             }
         };
         listaResultados.setOutputMarkupId(true);

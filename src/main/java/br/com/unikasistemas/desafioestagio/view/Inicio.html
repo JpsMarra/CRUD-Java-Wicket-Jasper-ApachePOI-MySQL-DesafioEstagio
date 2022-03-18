@@ -48,7 +48,8 @@
                         <div>
                             <div class="col">
                                 <label>Ativo</label>
-                                <select class="form-control" wicket:id="ativo"></select>
+                                <select class="form-control" wicket:id="ativo">
+                                </select>
                             </div>
 <!--                            <div class="col; btn-group btn-group-toggle" data-toggle="buttons">-->
 <!--                                <wicket:container wicket:id="ativo">-->
@@ -93,16 +94,18 @@
 
             <div wicket:id="divResultados">
                 <table class="table table-striped table-bordered table-hover">
+                    <thead>
                     <tr>
+                        <td wicket:id="navigator"></td>
+                    </tr>
+                    </thead>
+                    <tr style="text-align: center">
                         <th scope="col">Tipo de Pessoa</th>
                         <th scope="col">CPF/CNPJ</th>
                         <th scope="col">Razão Social/Nome</th>
-<!--                        <th scope="col">Nome Alternativo</th>-->
                         <th scope="col">E-mail</th>
-<!--                        <th scope="col">RG</th>-->
                         <th scope="col">Telefone</th>
                         <th scope="col">Inscrição Estadual</th>
-<!--                        <th scope="col">Data de Nascimento</th>-->
                         <th scope="col">Ativo</th>
                         <th scope="col" colspan="4">Ações</th>
                     </tr>
@@ -110,23 +113,20 @@
                         <td wicket:id="tipoPessoa">[Tipo de Pessoa]</td>
                         <td wicket:id="cpfCnpj">[CPF/CPNJ]</td>
                         <td wicket:id="razaoSocial">[Razão Social/Nome]</td>
-<!--                        <td wicket:id="nomeAlternativo">[Nome Alternativo]</td>-->
                         <td wicket:id="email">[E-mail]</td>
-<!--                        <td wicket:id="rg">[RG]</td>-->
                         <td wicket:id="telefone">[Telefone]</td>
                         <td wicket:id="inscricaoEstadual">[Inscrição Estadual]</td>
-<!--                        <td wicket:id="dataNascimento">[Data de Nascimento]</td>-->
                         <td wicket:id="ativo">[Ativo]</td>
                         <td wicket:id="linkEditar"><a href="#">Editar</a></td>
                         <td wicket:id="linkExcluir"><a href="#">Excluir</a></td>
                         <td wicket:id="linkExcel"><a href="#">Excel</a></td>
                         <td wicket:id="linkPdf"><a href="#">PDF</a></td>
                     </tr>
-                    <tfoot>
-                    <tr>
-                        <td wicket:id="navigator"></td>
-                    </tr>
-                    </tfoot>
+<!--                    <tfoot>-->
+<!--                    <tr>-->
+<!--                        <td wicket:id="navigator"></td>-->
+<!--                    </tr>-->
+<!--                    </tfoot>-->
                 </table>
             </div>
         </div>

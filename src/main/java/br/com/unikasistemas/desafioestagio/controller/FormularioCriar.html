@@ -7,6 +7,50 @@
 <body>
     <wicket:panel>
 
+        <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+        <script>
+            Array.prototype.forEach.call(document.body.querySelectorAll("*[data-mask]"), applyDataMask);
+
+            function applyDataMask(field) {
+                var mask = field.dataset.mask.split('');
+
+                // For now, this just strips everything that's not a number
+                function stripMask(maskedData) {
+                    function isDigit(char) {
+                        return /\d/.test(char);
+                    }
+                    return maskedData.split('').filter(isDigit);
+                }
+
+                // Replace `_` characters with characters from `data`
+                function applyMask(data) {
+                    return mask.map(function(char) {
+                        if (char != '_') return char;
+                        if (data.length == 0) return char;
+                        return data.shift();
+                    }).join('')
+                }
+
+                function reapplyMask(data) {
+                    return applyMask(stripMask(data));
+                }
+
+                function changed() {
+                    var oldStart = field.selectionStart;
+                    var oldEnd = field.selectionEnd;
+
+                    field.value = reapplyMask(field.value);
+
+                    field.selectionStart = oldStart;
+                    field.selectionEnd = oldEnd;
+                }
+
+                field.addEventListener('click', changed)
+                field.addEventListener('keyup', changed)
+            }
+        </script>
+
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link active" id="nav-geral-tab" data-toggle="tab" href="#nav-geral" role="tab" aria-controls="nav-geral" aria-selected="true">Geral</a>
@@ -22,9 +66,9 @@
                     <p wicket:id="titulo">[titulo]</p>
                     <hr />
 
-                    <div style="color:red" wicket:id="feedbackMessage"></div>
-
                     <form wicket:id="formularioPessoa" name="formularioPessoa">
+
+                        <div style="color:red" wicket:id="f"></div>
 
                         <div class="row">
                             <div class="col">
@@ -35,12 +79,12 @@
                             <div class="col">
                                 <label>Razão Social/Nome</label>
                                 <input class="form-control" wicket:id="razaoSocial" type="text"
-                                       placeholder="Razão Social/Nome"/>
+                                placeholder="Razão Social/Nome"/>
                             </div>
                             <br/>
                             <div class="col">
                                 <label>CPF/CNPJ</label>
-                                <input class="form-control" wicket:id="cpfCnpj" type="text" placeholder="CPF/CNPJ"/>
+                                <input class="form-control" wicket:id="cpfCnpj" type="text" placeholder="CPF/CNPJ" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/>
                             </div>
                             <br/>
                         </div>
@@ -50,57 +94,56 @@
                         <div class="row">
                             <div class="col">
                                 <label>Telefone</label>
-                                <input class="form-control" wicket:id="telefone" type="text" placeholder="Telefone"/>
+                                <input class="form-control" wicket:id="telefone" type="text" placeholder="Telefone" data-mask="(__)_____-____" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/>
                             </div>
                             <br/>
                             <div class="col">
                                 <label>E-mail</label>
-                                <input class="form-control" wicket:id="email" type="text"
-                                       placeholder="name@example.com"/>
+                                <input class="form-control" wicket:id="email" type="email"
+                                placeholder="name@example.com"/>
                             </div>
                             <br/>
+
                         </div>
 
                         <br/>
 
-                        <div class="row">
-                            <div wicket:id="containerPjVisible">
-                                <div wicket:id="containerPj">
+                        <div wicket:id="containerPjVisible">
+                            <div wicket:id="containerPj">
+                                <div class="row">
                                     <div class="col">
                                         <label>Nome Alternativo</label>
                                         <input class="form-control" wicket:id="nomeAlternativo" type="text"
-                                               placeholder="Nome Alternativo"/>
+                                        placeholder="Nome Alternativo"/>
                                     </div>
-                                    <br/>
                                     <div class="col">
                                         <label>Inscrição Estadual</label>
-                                        <input class="form-control" wicket:id="inscricaoEstadual" type="text"
-                                               placeholder="Inscrição Estadual"/>
+                                        <input class="form-control" wicket:id="inscricaoEstadual" type="text" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                        placeholder="Inscrição Estadual"/>
                                     </div>
                                 </div>
                             </div>
-                            <br/>
-                            <div wicket:id="containerPfVisible">
-                                <div wicket:id="containerPf">
-                                    <div class="col">
+                        </div>
+
+                        <div wicket:id="containerPfVisible">
+                           <div wicket:id="containerPf">
+                               <div class="row">
+                                   <div class="col">
                                         <label>RG</label>
-                                        <input class="form-control" wicket:id="rg" type="text" placeholder="RG"/>
+                                        <input class="form-control" wicket:id="rg" type="text" placeholder="RG" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/>
                                     </div>
-                                    <br/>
                                     <div class="col">
                                         <label>Data de Nascimento</label>
-                                        <input class="form-control" wicket:id="dataNascimento" type="text"
-                                               placeholder="dd/mm/yyyy"/>
+                                        <input class="form-control" wicket:id="dataNascimento" type="text" maxlength="8" minlength="8" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
+                                        placeholder="dd/mm/yyyy"/>
                                     </div>
                                 </div>
                             </div>
-                            <br/>
                         </div>
 
                         <br/>
 
                         <div class="row">
-                            <br/>
                             <div class="col">
                                 <div>
                                     <label>Ativo</label>
@@ -116,14 +159,14 @@
                                     </wicket:container>
                                 </div>
                             </div>
-                            <br/>
                         </div>
 
                         <br/>
                         <hr />
 
+
                         <div>
-                            <button type="submit" class="btn btn-primary" name="submit">Salvar</button>
+                            <button wicket:id="botaoSubmitPessoa" type="submit" class="btn btn-primary" name="submit">Salvar</button>
                         </div>
 
                     </form>

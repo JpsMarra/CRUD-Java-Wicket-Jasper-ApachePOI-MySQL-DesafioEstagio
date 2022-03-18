@@ -1,16 +1,16 @@
 package br.com.unikasistemas.desafioestagio.controller;
 
 import br.com.unikasistemas.desafioestagio.model.*;
-import br.com.unikasistemas.desafioestagio.view.Inicio;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
-import org.apache.wicket.feedback.ErrorLevelFeedbackMessageFilter;
 import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
@@ -19,7 +19,9 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.*;
+import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
+import org.apache.wicket.validation.validator.RangeValidator;
 import org.apache.wicket.validation.validator.StringValidator;
 
 import java.util.Arrays;
@@ -47,11 +49,13 @@ public class FormularioCriar extends Panel {
     public TextField<String> inputRg;
     public TextField<String> inputTelefone;
     public TextField<String> inputInscricaoEstadual;
-    public RadioGroup inputAtivo;
+    public RadioGroup<Boolean> inputAtivo;
     public WebMarkupContainer containerPj;
     public WebMarkupContainer containerPf;
     public WebMarkupContainer containerPjVisible;
     public WebMarkupContainer containerPfVisible;
+    public FeedbackPanel f;
+
 
     public LoadableDetachableModel enderecosModel(final Pessoa pessoa){
         enderecosModel = new LoadableDetachableModel(){
@@ -63,7 +67,7 @@ public class FormularioCriar extends Panel {
         return enderecosModel;
     }
 
-    public FormularioCriar(String id, final Pessoa pessoa, final List<Endereco> enderecos) {
+    public FormularioCriar(String id, final Pessoa pessoa, final List<Endereco> enderecos, final ModalWindow modalCriar) {
         super(id);
         this.pessoa = pessoa;
 
@@ -78,12 +82,21 @@ public class FormularioCriar extends Panel {
         add(new Label("titulo", "Criação de Pessoa"));
 
         //CompoundPropertyModel e Declaração do formulario com o método submit
-        compoundPropertyModelPessoa = new CompoundPropertyModel<Pessoa>(pessoa);
-        formularioPessoa = new Form<Pessoa>("formularioPessoa", compoundPropertyModelPessoa){
+        compoundPropertyModelPessoa = new CompoundPropertyModel<>(pessoa);
+        pessoa.setAtivo(true);
+        pessoa.setTipoPessoa(1);
+        formularioPessoa = new Form<>("formularioPessoa", compoundPropertyModelPessoa);
+        IndicatingAjaxButton botaoSubmitPessoa = new IndicatingAjaxButton("botaoSubmitPessoa", formularioPessoa) {
             @Override
-            public void onSubmit() {
-                Pessoa pessoaSubmetida = getModelObject();
-                salvar(pessoaSubmetida);
+            protected void onError(AjaxRequestTarget target, Form<?> form) {
+                target.add(f);
+            }
+
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                salvar(pessoa);
+                modalCriar.close(target);
+                afterCloseModalPessoa(target, pessoa);
             }
         };
         add(formularioPessoa);
@@ -104,9 +117,9 @@ public class FormularioCriar extends Panel {
 
         //Declaração dos inputs de texto, dropdown e radiogroup do formulario
         comboTipoPessoa = new DropDownChoice<Integer>("tipoPessoa", tiposPessoa, choices);
+        comboTipoPessoa.setNullValid(false);
         comboTipoPessoa.setOutputMarkupId(true);
         comboTipoPessoa.setOutputMarkupPlaceholderTag(true);
-        comboTipoPessoa.setNullValid(false);
         comboTipoPessoa.add(new AjaxFormComponentUpdatingBehavior("change") {
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
@@ -117,22 +130,24 @@ public class FormularioCriar extends Panel {
                     inputNomeAlternativo.setRequired(true).add(StringValidator.maximumLength(50));
                 }
                 if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.FISICA.getId())) {
-                    inputRg.setLabel(Model.of("RG")).setRequired(true).add(StringValidator.maximumLength(15));
+                    inputRg.setRequired(true).add(RangeValidator.range(0, 9999999));
                 }
         }});
+        comboTipoPessoa.setRequired(true);
+        inputCpfCnpj = new TextField<>("cpfCnpj");
+        inputCpfCnpj.setRequired(true).add(StringValidator.maximumLength(18));
+        inputRazaoSocial = new TextField<>("razaoSocial");
+        inputRazaoSocial.setRequired(true).add(StringValidator.maximumLength(50));
+        inputNomeAlternativo = new TextField<>("nomeAlternativo");
+        inputEmail = (TextField<String>) new EmailTextField("email").setRequired(true).add(EmailAddressValidator.getInstance());
+        inputRg = new TextField<>("rg");
+        inputTelefone = new TextField<>("telefone");
+        inputInscricaoEstadual = new TextField<>("inscricaoEstadual");
+        inputAtivo = new RadioGroup<>("ativo", (IModel<Boolean>) getDefaultModel());
+        inputAtivo.add(new Radio<>("ativoSim", new Model<>(true)));
+        inputAtivo.add(new Radio<>("ativoNao", new Model<>(false)));
 
-        inputCpfCnpj = new TextField<String>("cpfCnpj");
-        inputRazaoSocial = new TextField<String>("razaoSocial");
-        inputNomeAlternativo = new TextField<String>("nomeAlternativo");
-        inputEmail = new TextField<String>("email");
-        inputRg = new TextField<String>("rg");
-        inputTelefone = new TextField<String>("telefone");
-        inputInscricaoEstadual = new TextField<String>("inscricaoEstadual");
-        inputAtivo = new RadioGroup("ativo", getDefaultModel());
-        inputAtivo.add(new Radio("ativoSim", new Model<Boolean>(true)));
-        inputAtivo.add(new Radio("ativoNao", new Model<Boolean>(false)));
-
-        formularioPessoa.add(comboTipoPessoa, inputCpfCnpj,inputRazaoSocial, inputEmail, inputTelefone, inputAtivo);
+        formularioPessoa.add(comboTipoPessoa, inputCpfCnpj,inputRazaoSocial, inputEmail, inputTelefone, inputAtivo, botaoSubmitPessoa);
 
         containerPf = new WebMarkupContainer("containerPf"){
             @Override
@@ -174,28 +189,21 @@ public class FormularioCriar extends Panel {
         containerPjVisible.add(containerPj);
         formularioPessoa.add(containerPjVisible);
 
-        //Validadores
-        inputRazaoSocial.setLabel(Model.of("Razão Social/Nome")).setRequired(true).add(StringValidator.maximumLength(50));
-        comboTipoPessoa.setLabel(Model.of("Tipo de Pessoa")).setRequired(true);
-        inputCpfCnpj.setLabel(Model.of("CPF/CNPJ")).setRequired(true).add(StringValidator.maximumLength(18));
-        inputEmail.setLabel(Model.of("E-mail do Contato")).add(EmailAddressValidator.getInstance());
-
-
-        //Mensagem de Feedback para os Validadores
-        add(new FeedbackPanel("feedbackMessage", new ErrorLevelFeedbackMessageFilter(FeedbackMessage.ERROR)));
+        f = new FeedbackPanel("f");
+        f.setOutputMarkupId(true);
+        formularioPessoa.add(f).setOutputMarkupId(true);
 
     }
 
     //---------------------------------------------------------------------------------------------------------------------
 
+
     protected void salvar(Pessoa pessoaSubmetida) {
 
         if (pessoaSubmetida.getIdPessoa() != null) {
             PessoaDAO.getInstance().merge(pessoaSubmetida);
-            setResponsePage(Inicio.class);
         } else {
             PessoaDAO.getInstance().persist(pessoaSubmetida);
-            setResponsePage(Inicio.class);
         }
     }
 
@@ -210,16 +218,17 @@ public class FormularioCriar extends Panel {
 
             @Override
             protected boolean enableMonthYearSelection() {
-                return false;
+                return true;
             }
+
         };
 
         DateTextField dataNascimento = new DateTextField("dataNascimento", "dd/MM/yyyy");
 
         datePicker.setAutoHide(true);
         dataNascimento.add(datePicker);
-        dataNascimento.add(new AttributeModifier("onfocus", "$(this).setMask('date');"));
-        dataNascimento.add(new AttributeModifier("onclick", "$(this).setMask('99/99/9999');"));
+        dataNascimento.add(new AttributeModifier("onfocus", "$(this).setMask('99/99/9999');"));
+//        dataNascimento.add(new AttributeModifier("onclick", "$(this).setMask('99/99/9999');"));
         dataNascimento.setOutputMarkupId(true);
         return dataNascimento;
     }
@@ -252,6 +261,7 @@ public class FormularioCriar extends Panel {
                     public void afterCloseModal(AjaxRequestTarget target, Endereco endereco) {
                         pessoa.addEndereco(endereco);
                         endereco.setPessoa(pessoa);
+                        target.add(containerEnderecos);
                     }
                 };
                 modalEndereco.setOutputMarkupPlaceholderTag(true);
@@ -270,7 +280,7 @@ public class FormularioCriar extends Panel {
         return containerEnderecos;
     }
 
-    private ListView listaEnderecos(){
+    private ListView<Endereco> listaEnderecos(){
         listaEnderecos = new ListView<Endereco>("enderecos", enderecosModel(pessoa)) {
             @Override
             protected void populateItem(ListItem<Endereco> item) {
@@ -286,11 +296,15 @@ public class FormularioCriar extends Panel {
                 item.add(new AjaxLink<Void>("editarEndereco") {
                     @Override
                     public void onClick(AjaxRequestTarget target) {
-                        formEndereco = new FormularioEndereco(modalEndereco.getContentId(), endereco, modalEndereco);
+                        formEndereco = new FormularioEndereco(modalEndereco.getContentId(), endereco, modalEndereco){
+                            @Override
+                            public void afterCloseModal(AjaxRequestTarget target, Endereco endereco) {
+                                target.add(containerEnderecos);
+                            }
+                        };
                         modalEndereco.setContent(formEndereco);
                         modalEndereco.show(target);
                     }
-
                 });
                 item.add(new AjaxLink("excluirEndereco") {
                     @Override
@@ -301,6 +315,7 @@ public class FormularioCriar extends Panel {
                                 if(retorno) {
                                     pessoa.getEnderecos().remove(endereco);
                                     PessoaDAO.getInstance().removeEnderecoById(endereco.getIdEndereco());
+                                    target.add(containerEnderecos);
                                 }
                             }
                         };
@@ -312,6 +327,9 @@ public class FormularioCriar extends Panel {
             }
         };
         return listaEnderecos;
+    }
+
+    public void afterCloseModalPessoa(AjaxRequestTarget target, Pessoa pessoa) {
     }
 
 }
