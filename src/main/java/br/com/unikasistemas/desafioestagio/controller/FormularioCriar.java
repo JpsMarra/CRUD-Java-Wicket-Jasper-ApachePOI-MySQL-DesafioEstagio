@@ -83,8 +83,6 @@ public class FormularioCriar extends Panel {
 
         //CompoundPropertyModel e Declaração do formulario com o método submit
         compoundPropertyModelPessoa = new CompoundPropertyModel<>(pessoa);
-        pessoa.setAtivo(true);
-        pessoa.setTipoPessoa(1);
         formularioPessoa = new Form<>("formularioPessoa", compoundPropertyModelPessoa);
         IndicatingAjaxButton botaoSubmitPessoa = new IndicatingAjaxButton("botaoSubmitPessoa", formularioPessoa) {
             @Override
@@ -130,7 +128,7 @@ public class FormularioCriar extends Panel {
                     inputNomeAlternativo.setRequired(true).add(StringValidator.maximumLength(50));
                 }
                 if(comboTipoPessoa != null && comboTipoPessoa.getModelObject() != null && comboTipoPessoa.getModelObject().equals(TipoPessoa.FISICA.getId())) {
-                    inputRg.setRequired(true).add(RangeValidator.range(0, 9999999));
+                    inputRg.setRequired(true);
                 }
         }});
         comboTipoPessoa.setRequired(true);
@@ -314,7 +312,6 @@ public class FormularioCriar extends Panel {
                             public void retornoConfirmacao(AjaxRequestTarget target, boolean retorno) {
                                 if(retorno) {
                                     pessoa.getEnderecos().remove(endereco);
-                                    PessoaDAO.getInstance().removeEnderecoById(endereco.getIdEndereco());
                                     target.add(containerEnderecos);
                                 }
                             }
